@@ -61,7 +61,7 @@ export type OpenWorkspaceBrowserTabRequest = {
   placementPreference?: BrowserClientHostPlacementPreference
 }
 
-function createClientBrowserTab(
+async function createClientBrowserTab(
   state: AppState,
   request: OpenWorkspaceBrowserTabRequest,
   hostId: ExecutionHostId,
@@ -69,10 +69,10 @@ function createClientBrowserTab(
   // Why: a desktop-hosted page in a runtime workspace stays owned by that runtime, or the
   // unified tab is disowned from its worktree (palette and activation skip it).
   ownerHostId: ExecutionHostId = hostId
-): void {
+): Promise<void> {
   if (request.linkContext) {
     const destination = workspaceBrowserLinkDestination(request, ownerHostId, null, hostId)
-    const outcome = openClientWorkspaceBrowserLink(request, destination, presentation.title)
+    const outcome = await openClientWorkspaceBrowserLink(request, destination, presentation.title)
     request.onLinkOutcome?.(outcome)
     return
   }
@@ -183,7 +183,7 @@ export async function openWorkspaceBrowserTab(
     if (!host || host.kind === 'runtime') {
       throw openFailure(presentation.error, `unresolved client host: ${route.executionHostId}`)
     }
-    createClientBrowserTab(state, request, host.id, presentation)
+    await createClientBrowserTab(state, request, host.id, presentation)
     return
   }
   if (
@@ -205,7 +205,7 @@ export async function openWorkspaceBrowserTab(
     const localHostId = host && host.kind !== 'runtime' ? host.id : LOCAL_EXECUTION_HOST_ID
     const ownerHostId =
       host?.kind === 'runtime' && route.executionHostId ? route.executionHostId : localHostId
-    createClientBrowserTab(state, request, localHostId, presentation, ownerHostId)
+    await createClientBrowserTab(state, request, localHostId, presentation, ownerHostId)
     return
   }
   const destination =
