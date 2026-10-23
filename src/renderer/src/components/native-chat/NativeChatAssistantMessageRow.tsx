@@ -3,7 +3,7 @@ import type { NativeChatMessage } from '../../../../shared/native-chat-types'
 import type { deriveNativeChatRowContent } from '../../../../shared/native-chat-row-content'
 import type { MessageRowProps } from './NativeChatMessageRow'
 import { NativeChatPacedMarkdown } from './NativeChatPacedMarkdown'
-import { NATIVE_CHAT_QUOTE_SOURCE_PROPS } from './native-chat-quote-selection'
+import { nativeChatQuoteSourceProps } from './native-chat-quote-selection'
 import { NativeChatToolRun } from './NativeChatToolRun'
 import { NativeChatCodeBlock, NativeChatPlainCodeBlock } from './NativeChatCodeBlock'
 import { NativeChatAgentControls, NativeChatImageAttachments } from './NativeChatTranscriptChrome'
@@ -81,7 +81,7 @@ export function NativeChatAssistantMessageRow({
           onLinkClick={onLinkClick}
           allowFileUriLinks={allowFileUriLinks}
           linkifyFilePaths={onLinkClick !== undefined}
-          {...(isSystem ? {} : NATIVE_CHAT_QUOTE_SOURCE_PROPS)}
+          {...(isSystem ? {} : nativeChatQuoteSourceProps(message.id))}
           visualMessageId={message.role === 'assistant' ? message.id : undefined}
           // Structured text streams in place with no per-row state: only the live turn's frontier
           // row, still ending in prose, can be mid-sentence.

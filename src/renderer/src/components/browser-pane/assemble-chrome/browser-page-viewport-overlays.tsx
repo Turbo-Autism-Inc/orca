@@ -42,6 +42,7 @@ export function BrowserPageViewportOverlays({
   markupControlsContainer,
   browserOverlayViewport,
   worktreeId,
+  designModeIsolated,
   grab,
   annotationSend,
   grabAnnotations
@@ -67,6 +68,7 @@ export function BrowserPageViewportOverlays({
   markupControlsContainer: HTMLDivElement | null
   browserOverlayViewport: BrowserOverlayViewport
   worktreeId: string
+  designModeIsolated: boolean
   grab: GrabModeHook
   annotationSend: ReturnType<typeof useBrowserPageAnnotationSend>
   grabAnnotations: ReturnType<typeof useBrowserPageGrabAnnotations>
@@ -85,6 +87,7 @@ export function BrowserPageViewportOverlays({
         browserOverlayViewport={browserOverlayViewport}
         worktreeId={worktreeId}
         currentUrl={browserTab.url}
+        designModeIsolated={designModeIsolated}
       />
       <BrowserPageZoomIndicator state={browserZoomIndicatorState} percent={browserZoomPercent} />
       <BrowserFind isOpen={findOpen} onClose={() => setFindOpen(false)} webviewRef={webviewRef} />

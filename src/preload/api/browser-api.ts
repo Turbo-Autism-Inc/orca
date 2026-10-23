@@ -36,6 +36,8 @@ import type {
   BrowserCancelGrabArgs,
   BrowserCaptureSelectionScreenshotArgs,
   BrowserCaptureSelectionScreenshotResult,
+  BrowserSaveDesignModeCaptureArgs,
+  BrowserSaveDesignModeCaptureResult,
   BrowserExtractHoverArgs,
   BrowserExtractHoverResult,
   GrabIntent
@@ -201,6 +203,10 @@ export type BrowserApi = {
     owner: ManagedBrowserProfileOwner
     label: string
   }) => Promise<BrowserSessionProfile>
+  /** Saves a Design Mode element screenshot where a local agent can read it. */
+  saveDesignModeCapture: (
+    args: BrowserSaveDesignModeCaptureArgs
+  ) => Promise<BrowserSaveDesignModeCaptureResult>
   identityGet: () => Promise<BrowserIdentityModeStatus | null>
   identitySet: (mode: BrowserUserAgentMode) => Promise<BrowserIdentityModeSetResult | null>
   sessionDeleteProfile: (args: { profileId: string }) => Promise<boolean>

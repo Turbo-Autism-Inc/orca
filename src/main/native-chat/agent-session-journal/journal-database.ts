@@ -52,6 +52,9 @@ export function journalDatabaseHoldsAgentSessions(dbPath: string): boolean {
   }
 }
 
+/** SQLite's name for a database that lives only in this connection's memory. */
+export const IN_MEMORY_JOURNAL_DATABASE = ':memory:'
+
 export function openJournalDatabase(dbPath: string): OpenJournalDatabase {
   const probe = new Database(dbPath)
   let stored: number
@@ -84,7 +87,9 @@ export function openJournalDatabase(dbPath: string): OpenJournalDatabase {
     ensureQueuedMessagesTable(probe)
     ensureCommandReceiptsTable(probe)
     ensureAgentSessionAttachmentClaimTables(probe)
-    hardenSqliteDatabaseFiles(dbPath)
+    if (dbPath !== IN_MEMORY_JOURNAL_DATABASE) {
+      hardenSqliteDatabaseFiles(dbPath)
+    }
     transferred = true
     return { db: probe, readOnly: false }
   } finally {

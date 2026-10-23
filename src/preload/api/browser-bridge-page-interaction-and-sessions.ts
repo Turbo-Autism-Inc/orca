@@ -134,6 +134,8 @@ export const browserPageInteractionAndSessionsApi = {
     ipcRenderer.invoke('browser:session:createProfile', args),
   sessionEnsureManagedProfile: (args: { owner: ManagedBrowserProfileOwner; label: string }) =>
     ipcRenderer.invoke('browser:session:ensureManagedProfile', args),
+  saveDesignModeCapture: (args: { worktreeId: string; dataUrl: string }) =>
+    ipcRenderer.invoke('browser:designMode:saveCapture', args),
   identityGet: () => ipcRenderer.invoke('browser:identity:get'),
   identitySet: (mode: BrowserUserAgentMode) => ipcRenderer.invoke('browser:identity:set', mode),
   sessionDeleteProfile: (args: { profileId: string }): Promise<boolean> =>

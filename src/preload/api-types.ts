@@ -58,6 +58,8 @@ import type { KeybindingsApi, SettingsApi } from './api/settings-api'
 import type { ShellApi } from './api/shell-api'
 import type { SpeechApi } from './api/speech-api'
 import type { SshApi } from './api/ssh-api'
+import type { HermesGatewayApi } from './api/hermes-gateway-bridge'
+import type { PrivateChatApi } from './api/private-chat-bridge'
 import type { PlainSshTerminalApi } from './api/plain-ssh-terminal-bridge'
 import type { LegacyRelayBridgeApi } from './api/legacy-relay-bridge-api'
 import type { DiagnosticsApi, MemoryApi, StatsApi, TelemetryApi } from './api/telemetry-api'
@@ -95,6 +97,8 @@ export type PreloadApi = {
   gl: GitLabApi
   bitbucket: BitbucketApi
   linear: LinearApi
+  hermesGateway: HermesGatewayApi
+  privateChat: PrivateChatApi
   jira: JiraApi
   starNag: StarNagApi
   telemetryTrack: TelemetryApi['telemetryTrack']

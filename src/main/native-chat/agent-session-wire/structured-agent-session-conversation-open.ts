@@ -13,6 +13,7 @@
 import type { JournalHostDatabase } from '../agent-session-journal/journal-host-database'
 import type { AgentSessionJournal } from '../agent-session-journal/journal-store'
 import { openAgentSessionJournal } from '../agent-session-journal/journal-store-factory'
+import { privateChatJournalGate } from '../private-chat-journal-gate'
 import { holdUnsentSends } from '../agent-session-journal/journal-unsent-send-hold'
 import { computeAgentSessionPayloadFingerprint } from '../../../shared/agent-session-mutation-envelope'
 import type { AgentSessionRecord } from '../../../shared/agent-session-record'
@@ -102,7 +103,9 @@ export async function openStructuredAgentSessionConversationJournal(
     expectedRuntimeFence: fence
   })
   const identity = journalIdentityFor(record, params)
-  const journal = await openAgentSessionJournal({ identity, database: deps.journalDatabase })
+  // The one place a chat's journal picks its database: a private chat's never touches disk.
+  const database = privateChatJournalGate.journalHostFor(sessionId, deps.journalDatabase)
+  const journal = await openAgentSessionJournal({ identity, database })
   try {
     // A handed-over row found here is only doubt, which provider history decides under a won lease.
     await journal.markPendingSubmissionsUnknown(fence)

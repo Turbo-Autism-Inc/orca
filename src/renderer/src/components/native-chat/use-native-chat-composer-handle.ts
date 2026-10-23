@@ -8,6 +8,7 @@ import {
 import { useNativeChatTypedInsertion } from './use-native-chat-typed-insertion'
 import { useNativeChatPastedTextFile } from './use-native-chat-pasted-text-file'
 import type { NativeChatComposerInput } from './native-chat-composer-input'
+import { requestNativeChatSendAfterAppend } from './native-chat-send-after-append'
 
 type UseNativeChatComposerHandleArgs = Parameters<typeof useNativeChatTypedInsertion>[0] &
   Omit<UseNativeChatComposerPasteArgs, 'insertTypedText'> & {
@@ -24,6 +25,7 @@ export function useNativeChatComposerHandle(
   args: UseNativeChatComposerHandleArgs
 ): (event: ClipboardEventLike) => void {
   const { textareaRef, isComposing, setDraft, setActiveSuggestion, ...pasteArgs } = args
+  const scopeKey = args.attachmentScopeKey
   const { insertTypedText, appendText, acceptsText, insertPastedText, focus, contains } =
     useNativeChatTypedInsertion({
       textareaRef,
@@ -54,11 +56,21 @@ export function useNativeChatComposerHandle(
       insertTypedText,
       acceptsText,
       appendText,
+      appendTextAndSend: (text: string) => {
+        if (!acceptsText()) {
+          return
+        }
+        appendText(text)
+        if (scopeKey) {
+          requestNativeChatSendAfterAppend(scopeKey)
+        }
+      },
       handlePasteEvent,
       pasteFromClipboard,
       contains
     }),
     [
+      scopeKey,
       focus,
       insertTypedText,
       acceptsText,

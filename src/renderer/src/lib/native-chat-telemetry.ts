@@ -8,6 +8,7 @@
 // the composer a single import (`emitNativeChatMessageSent`) to call.
 
 import { track, tuiAgentToAgentKind } from './telemetry'
+import { isPrivateChatModeOn } from './private-chat-mode'
 import type { NativeChatRuntime } from '../../../shared/telemetry-events'
 import type { TuiAgent } from '../../../shared/tui-agent'
 
@@ -53,6 +54,9 @@ export function emitNativeChatMessageSent(args: {
   agent: NativeChatTelemetryAgent
   runtime: NativeChatRuntime
 }): void {
+  if (isPrivateChatModeOn()) {
+    return
+  }
   track('native_chat_message_sent', {
     agent_kind: resolveAgentKind(args.agent),
     runtime: args.runtime

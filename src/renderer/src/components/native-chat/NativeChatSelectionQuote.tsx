@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import { Quote } from 'lucide-react'
+import { MessageSquareQuote, Quote, SendHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ImeTextarea } from '@/lib/ime-text-field'
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import { addViewportSizeChangeListener } from '@/hooks/viewport-size-change-listener'
 import { translate } from '@/i18n/i18n'
@@ -8,6 +9,7 @@ import { useAppStore } from '../../store'
 import type { NativeChatComposerHandle } from './native-chat-composer-types'
 import {
   formatNativeChatQuote,
+  formatNativeChatQuoteFollowUp,
   readNativeChatQuotableSelection,
   readNativeChatTranscriptSelection
 } from './native-chat-quote-selection'
@@ -18,6 +20,8 @@ const DOUBLE_CLICK_SETTLE_MS = 500
 /** The selected text, and the point the offer is drawn at, which moves with that text. */
 type QuoteRequest = {
   text: string
+  /** The reply the text was selected in, so the follow-up can name it. */
+  messageId: string | null
   anchor: { getBoundingClientRect: () => DOMRect; contextElement?: Element }
 }
 
@@ -35,7 +39,11 @@ export function NativeChatSelectionQuote({
   enabled: boolean
 }): React.JSX.Element {
   const [request, setRequest] = useState<QuoteRequest | null>(null)
+  // null: the plain offer; a string: the note being written for a quoted follow-up.
+  const [note, setNote] = useState<string | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const noteOpenRef = useRef(false)
+  noteOpenRef.current = note !== null
   const virtualRef = useMemo(() => ({ current: request?.anchor ?? null }), [request])
 
   useEffect(() => {
@@ -48,6 +56,7 @@ export function NativeChatSelectionQuote({
     const close = (): void => {
       window.clearTimeout(timer)
       setRequest(null)
+      setNote(null)
     }
     const onPointerDown = (event: PointerEvent): void => {
       if (event.target instanceof Node && contentRef.current?.contains(event.target)) {
@@ -59,7 +68,8 @@ export function NativeChatSelectionQuote({
     // `point` is where the pointer was released; a keyboard selection is offered at its end.
     const offer = (point: { x: number; y: number } | null, delay = 0): void => {
       // A press or key that left the selection as it was (a scrollbar, a timestamp) selected nothing.
-      if (!selectionChanged) {
+      // While a note is being written, keystrokes in it are not a new selection.
+      if (!selectionChanged || noteOpenRef.current) {
         return
       }
       selectionChanged = false
@@ -80,13 +90,15 @@ export function NativeChatSelectionQuote({
           setRequest(null)
           return
         }
-        const { text, range } = quotable
+        const { text, range, messageId } = quotable
         const held = range.getBoundingClientRect()
         const end = [...range.getClientRects()].at(-1) ?? held
         const dx = (point?.x ?? end.right) - held.left
         const dy = (point?.y ?? end.top) - held.top
+        setNote(null)
         setRequest({
           text,
+          messageId,
           anchor: {
             getBoundingClientRect: () => {
               const now = range.getBoundingClientRect()
@@ -110,7 +122,11 @@ export function NativeChatSelectionQuote({
     const onSelectionChange = (): void => {
       selectionChanged = true
       setRequest((current) =>
-        current && readNativeChatQuotableSelection(root)?.text !== current.text ? null : current
+        current &&
+        !noteOpenRef.current &&
+        readNativeChatQuotableSelection(root)?.text !== current.text
+          ? null
+          : current
       )
     }
     document.addEventListener('pointerdown', onPointerDown, true)
@@ -146,20 +162,79 @@ export function NativeChatSelectionQuote({
           // Keeps the selection, and the focus, where they are until the quote is taken.
           onMouseDown={(event) => event.preventDefault()}
         >
-          <div className="p-0.5">
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={() => {
-                // Taken or not (the composer may have locked since), the offer is spent.
-                composerRef.current?.appendText(formatNativeChatQuote(request.text))
+          {note === null ? (
+            <div className="flex gap-0.5 p-0.5">
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => {
+                  // Taken or not (the composer may have locked since), the offer is spent.
+                  composerRef.current?.appendText(formatNativeChatQuote(request.text))
+                  setRequest(null)
+                }}
+              >
+                <Quote />
+                {translate('components.native-chat.addSelectionToChat', 'Add to chat')}
+              </Button>
+              <Button variant="ghost" size="xs" onClick={() => setNote('')}>
+                <MessageSquareQuote />
+                {translate('components.native-chat.quoteWithNote', 'Quote with note')}
+              </Button>
+            </div>
+          ) : (
+            <form
+              className="flex w-72 flex-col gap-1.5 p-1.5"
+              // The textarea takes focus and the pointer; the selection is no longer needed.
+              onMouseDown={(event) => event.stopPropagation()}
+              onSubmit={(event) => {
+                event.preventDefault()
+                const composer = composerRef.current
+                const followUp = formatNativeChatQuoteFollowUp({
+                  quote: request.text,
+                  note,
+                  messageId: request.messageId
+                })
+                if (composer?.appendTextAndSend) {
+                  composer.appendTextAndSend(followUp)
+                } else {
+                  composer?.appendText(followUp)
+                }
+                setNote(null)
                 setRequest(null)
               }}
             >
-              <Quote />
-              {translate('components.native-chat.addSelectionToChat', 'Add to chat')}
-            </Button>
-          </div>
+              <ImeTextarea
+                autoFocus
+                rows={3}
+                value={note}
+                aria-label={translate('components.native-chat.quoteNoteLabel', 'Note on the quote')}
+                placeholder={translate(
+                  'components.native-chat.quoteNotePlaceholder',
+                  'Add a note for the agent…'
+                )}
+                className="w-full resize-none rounded-md border border-input bg-transparent px-2 py-1 text-sm focus-visible:outline-none"
+                onChange={(event) => setNote(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    event.preventDefault()
+                    setNote(null)
+                    setRequest(null)
+                  } else if (
+                    event.key === 'Enter' &&
+                    !event.shiftKey &&
+                    !event.nativeEvent.isComposing
+                  ) {
+                    event.preventDefault()
+                    event.currentTarget.form?.requestSubmit()
+                  }
+                }}
+              />
+              <Button type="submit" size="xs" className="self-end" disabled={note.trim() === ''}>
+                <SendHorizontal />
+                {translate('components.native-chat.sendQuoteWithNote', 'Send')}
+              </Button>
+            </form>
+          )}
         </PopoverContent>
       ) : null}
     </Popover>

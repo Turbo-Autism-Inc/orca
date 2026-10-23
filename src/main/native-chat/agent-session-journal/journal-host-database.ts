@@ -8,6 +8,7 @@ import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import type Database from '../../sqlite/sync-database'
 import {
+  IN_MEMORY_JOURNAL_DATABASE,
   openJournalDatabase,
   runJournalTransaction,
   type OpenJournalDatabase
@@ -44,6 +45,19 @@ export class JournalHostDatabase {
       stateDirectory
     )
   }
+
+  /** Same schema, nothing on disk: for private chats, whose history ends with this process. */
+  static openInMemory(stateDirectory: string): JournalHostDatabase {
+    const host = new JournalHostDatabase(
+      openJournalDatabase(IN_MEMORY_JOURNAL_DATABASE),
+      stateDirectory
+    )
+    host.inMemory = true
+    return host
+  }
+
+  /** True for the private, memory-only database. */
+  inMemory = false
 
   get isClosed(): boolean {
     return this.connection === null

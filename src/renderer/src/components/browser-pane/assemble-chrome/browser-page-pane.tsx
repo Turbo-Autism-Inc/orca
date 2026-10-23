@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useDesignModeIsolated } from '@/lib/design-mode-browser'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getConnectionIdFromState } from '@/lib/connection-context'
@@ -143,6 +144,7 @@ export function BrowserPagePane({
   const certificateFailure = useAppStore(
     (s) => s.browserCertificateFailuresByPageId[browserTab.id] ?? null
   )
+  const designModeIsolated = useDesignModeIsolated(worktreeId, sessionProfileId)
   const webviewPartition = useBrowserPageWebviewPartition({
     sessionProfileId,
     sessionPartition
@@ -180,7 +182,9 @@ export function BrowserPagePane({
     trackingScroller: pageViewport?.scroller ?? null,
     webviewRef,
     setBrowserOverlayViewport,
-    browserAnnotationsLength: annotationSend.browserAnnotations.length
+    browserAnnotationsLength: annotationSend.browserAnnotations.length,
+    worktreeId,
+    sessionProfileId
   })
   const nav = useBrowserPageNavigationDownloads({
     browserTabId: browserTab.id,
@@ -395,6 +399,7 @@ export function BrowserPagePane({
               }
               browserOverlayViewport={browserOverlayViewport}
               worktreeId={worktreeId}
+              designModeIsolated={designModeIsolated}
               grab={grab}
               annotationSend={annotationSend}
               grabAnnotations={grabAnnotations}

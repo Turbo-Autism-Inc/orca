@@ -3,6 +3,7 @@
 // and need no budget: every draft comes back.
 
 import type { JSONContent } from '@tiptap/react'
+import { isPrivateChatModeOn } from '@/lib/private-chat-mode'
 import { parseExecutionHostId, type ExecutionHostId } from '../../../../shared/execution-host'
 import { createIndexedDbNativeChatComposerDraftStorage } from './native-chat-composer-draft-indexeddb'
 
@@ -95,11 +96,27 @@ export function createMemoryNativeChatComposerDraftStorage(): NativeChatComposer
 let storage: NativeChatComposerDraftStorage | null = null
 
 export function nativeChatComposerDraftStorage(): NativeChatComposerDraftStorage {
-  storage ??=
+  storage ??= withoutWritesWhilePrivate(
     typeof indexedDB === 'undefined'
       ? createMemoryNativeChatComposerDraftStorage()
       : createIndexedDbNativeChatComposerDraftStorage(indexedDB)
+  )
   return storage
+}
+
+/** While Private Chat is on, drafts stay in memory: writes settle without touching storage. */
+export function withoutWritesWhilePrivate(
+  inner: NativeChatComposerDraftStorage
+): NativeChatComposerDraftStorage {
+  return {
+    loadAll: () => inner.loadAll(),
+    read: (scopeKey) => inner.read(scopeKey),
+    remove: (scopeKeys) => inner.remove(scopeKeys),
+    write: (scopeKey, draft) =>
+      isPrivateChatModeOn() ? Promise.resolve() : inner.write(scopeKey, draft),
+    update: (scopeKey, apply) =>
+      isPrivateChatModeOn() ? Promise.resolve() : inner.update(scopeKey, apply)
+  }
 }
 
 export function setNativeChatComposerDraftStorageForTests(

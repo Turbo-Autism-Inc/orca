@@ -16,13 +16,9 @@ import type {
   BrowserGrabPayload
 } from '../../../../../shared/browser-grab-types'
 import { formatGrabPayloadAsText } from './GrabConfirmationSheet'
-import {
-  createBrowserAnnotationId,
-  createBrowserAnnotationPayload,
-  DEFAULT_BROWSER_ANNOTATION_PRIORITY
-} from '../describe-page/browser-annotation-geometry'
 import { useBrowserPageAnnotationViewportTracking } from './use-browser-page-annotation-viewport-tracking'
 import { runBrowserGrabActionShortcut } from './browser-page-grab-action'
+import { newBrowserPageAnnotation, withDesignModeContext } from '@/lib/design-mode-browser'
 import type {
   BrowserPageGrabAnnotationsOptions,
   BrowserPageGrabToastState,
@@ -55,7 +51,9 @@ export function useBrowserPageGrabAnnotations({
   trackingScroller,
   webviewRef,
   setBrowserOverlayViewport,
-  browserAnnotationsLength
+  browserAnnotationsLength,
+  worktreeId,
+  sessionProfileId
 }: BrowserPageGrabAnnotationsOptions): {
   grabIntent: GrabIntent
   startGrabIntent: (nextIntent: GrabIntent) => void
@@ -257,22 +255,35 @@ export function useBrowserPageGrabAnnotations({
       if (!payload) {
         return
       }
-      addBrowserPageAnnotation({
-        id: createBrowserAnnotationId(),
-        browserPageId: browserTabId,
-        comment,
-        intent,
-        priority: DEFAULT_BROWSER_ANNOTATION_PRIORITY,
-        createdAt: new Date().toISOString(),
-        payload: createBrowserAnnotationPayload(payload)
-      })
-      recordFeatureInteraction('browser-annotations')
       pendingAnnotationPayloadRef.current = null
       setPendingAnnotationPayload(null)
-      showGrabToast(annotationAddedGrabToastMessage(), 'success', payload)
-      grab.rearm()
+      withDesignModeContext({ payload, worktreeId, sessionProfileId }, (design) => {
+        addBrowserPageAnnotation(
+          newBrowserPageAnnotation({
+            browserPageId: browserTabId,
+            comment,
+            intent,
+            payload,
+            design
+          })
+        )
+        recordFeatureInteraction('browser-annotations')
+        if (mountedRef.current) {
+          showGrabToast(annotationAddedGrabToastMessage(), 'success', payload)
+          grab.rearm()
+        }
+      })
     },
-    [addBrowserPageAnnotation, browserTabId, grab, recordFeatureInteraction, showGrabToast]
+    [
+      addBrowserPageAnnotation,
+      browserTabId,
+      grab,
+      mountedRef,
+      recordFeatureInteraction,
+      sessionProfileId,
+      showGrabToast,
+      worktreeId
+    ]
   )
 
   const handleCancelPendingBrowserAnnotation = useCallback((): void => {

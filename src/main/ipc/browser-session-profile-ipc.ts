@@ -18,6 +18,7 @@ import type {
 } from '../../shared/browser-workspace-types'
 import type { ManagedBrowserProfileOwner } from '../../shared/browser-profile-scope'
 import { ensureManagedBrowserProfile } from '../browser/browser-managed-session-profiles'
+import { registerBrowserDesignModeHandlers } from './browser-design-mode-ipc'
 import {
   getBrowserIdentityModeStatus,
   setBrowserIdentityMode
@@ -71,6 +72,8 @@ export function registerBrowserSessionProfileHandlers(): void {
         ? ensureManagedBrowserProfile(args?.owner, args?.label)
         : null
   )
+
+  registerBrowserDesignModeHandlers()
 
   ipcMain.handle('browser:identity:get', (event) => {
     if (!isTrustedBrowserRenderer(event.sender)) {

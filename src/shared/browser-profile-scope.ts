@@ -21,6 +21,13 @@ export function getManagedBrowserProfileOwner(
   return { kind: 'worktree', id: worktreeId }
 }
 
+/** Design Mode always renders on the workspace's own profile, whatever the new-tab scope setting says. */
+export function getDesignModeBrowserProfileOwner(
+  worktreeId: string
+): ManagedBrowserProfileOwner | null {
+  return worktreeId === FLOATING_TERMINAL_WORKTREE_ID ? null : { kind: 'worktree', id: worktreeId }
+}
+
 export function managedBrowserProfileOwnerKey(owner: ManagedBrowserProfileOwner): string {
   return `${owner.kind}:${owner.id}`
 }
