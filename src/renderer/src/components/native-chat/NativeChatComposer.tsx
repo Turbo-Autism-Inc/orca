@@ -1,7 +1,7 @@
 import { useNativeChatComposerNotice } from './use-native-chat-composer-notice'
 import { useNativeChatMobileHoldNotice } from './use-native-chat-mobile-hold-notice'
 import type { NativeChatComposerInput } from './native-chat-composer-input'
-import { forwardRef, useCallback, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
 import { useNativeChatComposerInterrupt } from './use-native-chat-composer-interrupt'
 import { useNativeChatContextUsageSummary } from './use-native-chat-context-usage-summary'
 import { useNativeChatMentionFiles } from './use-native-chat-mention-files'
@@ -198,7 +198,14 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
         setNotice
       })
 
+    const sendAfterAppendRef = useRef(false)
+    const [sendAfterAppendRequest, setSendAfterAppendRequest] = useState(0)
+    const requestSendAfterAppend = useCallback(() => {
+      sendAfterAppendRef.current = true
+      setSendAfterAppendRequest((count) => count + 1)
+    }, [])
     const handlePasteEvent = useNativeChatComposerHandle(ref, {
+      requestSendAfterAppend,
       attachmentScopeKey: draftScopeKey,
       textareaRef,
       isComposing: imeEnterGesture.isComposing,
@@ -307,6 +314,15 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       setDraft,
       setCaret
     })
+
+    // Why an effect: `send` reads the draft from state, which holds the appended text only next render.
+    useEffect(() => {
+      if (!sendAfterAppendRef.current) {
+        return
+      }
+      sendAfterAppendRef.current = false
+      send()
+    }, [sendAfterAppendRequest, send])
 
     const interrupt = useNativeChatComposerInterrupt({
       inert: inputOwnedByCard,

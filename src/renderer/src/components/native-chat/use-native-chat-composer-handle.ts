@@ -15,6 +15,8 @@ type UseNativeChatComposerHandleArgs = Parameters<typeof useNativeChatTypedInser
     pastesInline: () => boolean
     /** A structured chat's editor while it shows this scope, where a long paste saved as a file lands. */
     pastedTextEditor: (() => NativeChatComposerInput | null) | null
+    /** Submits on the render that shows the appended draft. */
+    requestSendAfterAppend: () => void
   }
 
 /** Typed and pasted insertion for the composer, exposed on the handle the chat
@@ -23,7 +25,14 @@ export function useNativeChatComposerHandle(
   ref: ForwardedRef<NativeChatComposerHandle>,
   args: UseNativeChatComposerHandleArgs
 ): (event: ClipboardEventLike) => void {
-  const { textareaRef, isComposing, setDraft, setActiveSuggestion, ...pasteArgs } = args
+  const {
+    textareaRef,
+    isComposing,
+    setDraft,
+    setActiveSuggestion,
+    requestSendAfterAppend,
+    ...pasteArgs
+  } = args
   const { insertTypedText, appendText, acceptsText, insertPastedText, focus, contains } =
     useNativeChatTypedInsertion({
       textareaRef,
@@ -54,11 +63,19 @@ export function useNativeChatComposerHandle(
       insertTypedText,
       acceptsText,
       appendText,
+      appendTextAndSend: (text: string) => {
+        if (!acceptsText()) {
+          return
+        }
+        appendText(text)
+        requestSendAfterAppend()
+      },
       handlePasteEvent,
       pasteFromClipboard,
       contains
     }),
     [
+      requestSendAfterAppend,
       focus,
       insertTypedText,
       acceptsText,

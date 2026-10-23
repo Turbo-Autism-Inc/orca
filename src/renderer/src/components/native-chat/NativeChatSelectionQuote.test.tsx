@@ -6,16 +6,18 @@ import { createGlobalSettingsFixture } from '../../../../shared/global-settings-
 import { useAppStore } from '../../store'
 import type { NativeChatComposerHandle } from './native-chat-composer-types'
 import { NativeChatSelectionQuote } from './NativeChatSelectionQuote'
-import { NATIVE_CHAT_QUOTE_SOURCE_PROPS } from './native-chat-quote-selection'
+import { nativeChatQuoteSourceProps } from './native-chat-quote-selection'
 
 vi.mock('@/i18n/i18n', () => ({ translate: (_key: string, fallback: string) => fallback }))
 
 const appendText = vi.fn<(text: string) => void>()
+const appendTextAndSend = vi.fn<(text: string) => void>()
 const acceptsText = vi.fn(() => true)
 const composer: NativeChatComposerHandle = {
   focus: () => true,
   insertTypedText: () => true,
   appendText,
+  appendTextAndSend,
   acceptsText,
   handlePasteEvent: () => {},
   pasteFromClipboard: () => {},
@@ -28,7 +30,7 @@ function Chat(): React.JSX.Element {
     <div ref={rootRef}>
       <div data-native-chat-scroll="">
         <p data-testid="user">my own prompt</p>
-        <div {...NATIVE_CHAT_QUOTE_SOURCE_PROPS}>
+        <div {...nativeChatQuoteSourceProps('msg-7')}>
           <pre data-testid="first">{'Use the draft store.\n\nIt already appends.'}</pre>
         </div>
         <time data-testid="time" style={{ userSelect: 'none' }}>
@@ -74,6 +76,7 @@ describe('NativeChatSelectionQuote', () => {
     cleanup()
     window.getSelection()?.removeAllRanges()
     appendText.mockClear()
+    appendTextAndSend.mockClear()
     acceptsText.mockReset().mockReturnValue(true)
     vi.useRealTimers()
   })
@@ -88,6 +91,22 @@ describe('NativeChatSelectionQuote', () => {
 
     expect(appendText).toHaveBeenCalledWith('> Use the draft store.\n>\n> It already appends.\n\n')
     expect(screen.queryByRole('button', { name: 'Add to chat' })).toBeNull()
+  })
+
+  it('sends the exact quote, the note and the source message as one follow-up', () => {
+    render(<Chat />)
+    releaseSelection(screen.getByTestId('first'))
+    fireEvent.click(screen.getByRole('button', { name: 'Quote with note' }))
+
+    const note = screen.getByRole('textbox', { name: 'Note on the quote' })
+    fireEvent.change(note, { target: { value: 'Does this survive a reload?' } })
+    fireEvent.keyDown(note, { key: 'Enter' })
+
+    expect(appendTextAndSend).toHaveBeenCalledWith(
+      'Re: agent message msg-7\n> Use the draft store.\n>\n> It already appends.\n\nDoes this survive a reload?'
+    )
+    expect(appendText).not.toHaveBeenCalled()
+    expect(screen.queryByRole('textbox', { name: 'Note on the quote' })).toBeNull()
   })
 
   it('offers nothing for a selection outside an agent reply', () => {

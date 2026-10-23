@@ -1,6 +1,14 @@
 /** Marks the prose of an agent reply; only a selection inside one of these can be quoted. */
 export const NATIVE_CHAT_QUOTE_SOURCE_PROPS = { 'data-native-chat-quote-source': '' } as const
 
+/** The same marker, naming the reply so a quote can say which message it came from. */
+export function nativeChatQuoteSourceProps(messageId: string): {
+  'data-native-chat-quote-source': ''
+  'data-native-chat-quote-message-id': string
+} {
+  return { ...NATIVE_CHAT_QUOTE_SOURCE_PROPS, 'data-native-chat-quote-message-id': messageId }
+}
+
 const QUOTE_SOURCE_SELECTOR = '[data-native-chat-quote-source]'
 const TRANSCRIPT_SELECTOR = '[data-native-chat-scroll]'
 
@@ -22,7 +30,7 @@ export function readNativeChatTranscriptSelection(root: HTMLElement): string {
 /** The selection when all of it sits inside one agent reply of this chat, else null. */
 export function readNativeChatQuotableSelection(
   root: HTMLElement
-): { text: string; range: Range } | null {
+): { text: string; range: Range; messageId: string | null } | null {
   const selection = window.getSelection()
   if (!selection || selection.isCollapsed || selection.rangeCount !== 1) {
     return null
@@ -37,7 +45,7 @@ export function readNativeChatQuotableSelection(
   if (!edges || !source || !source.contains(edges.last) || text === '') {
     return null
   }
-  return { text, range }
+  return { text, range, messageId: source.getAttribute('data-native-chat-quote-message-id') }
 }
 
 // Why: a triple-click ends its range at the start of the next block, often outside the reply, so
@@ -73,4 +81,15 @@ function isSelectableText(node: Text): boolean {
 export function formatNativeChatQuote(text: string): string {
   const lines = text.trim().split(/\r?\n/)
   return `${lines.map((line) => (line.trim() ? `> ${line}` : '>')).join('\n')}\n\n`
+}
+
+/** A follow-up that names the reply, quotes the exact span, then carries the note. */
+export function formatNativeChatQuoteFollowUp(args: {
+  quote: string
+  note: string
+  messageId: string | null
+}): string {
+  const reference = args.messageId ? `Re: agent message ${args.messageId}\n` : ''
+  const note = args.note.trim()
+  return `${reference}${formatNativeChatQuote(args.quote)}${note}`.trimEnd()
 }
