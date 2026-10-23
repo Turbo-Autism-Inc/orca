@@ -48,13 +48,16 @@ export class JournalHostDatabase {
 
   /** Same schema, nothing on disk: for private chats, whose history ends with this process. */
   static openInMemory(stateDirectory: string): JournalHostDatabase {
-    return new JournalHostDatabase(openJournalDatabase(IN_MEMORY_JOURNAL_DATABASE), stateDirectory)
+    const host = new JournalHostDatabase(
+      openJournalDatabase(IN_MEMORY_JOURNAL_DATABASE),
+      stateDirectory
+    )
+    host.inMemory = true
+    return host
   }
 
   /** True for the private, memory-only database. */
-  get inMemory(): boolean {
-    return this.connection?.memory === true
-  }
+  inMemory = false
 
   get isClosed(): boolean {
     return this.connection === null

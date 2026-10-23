@@ -28,6 +28,7 @@ import { glApiBridge } from './api/gl-bridge'
 import { bitbucketApi } from './api/bitbucket-bridge'
 import { linearApi } from './api/linear-bridge'
 import { hermesGatewayApi } from './api/hermes-gateway-bridge'
+import { privateChatApi } from './api/private-chat-bridge'
 import { jiraApi } from './api/jira-bridge'
 import { starNagApi } from './api/star-nag-bridge'
 import { diagnosticsApi } from './api/diagnostics-bridge'
@@ -126,6 +127,7 @@ const api = {
   bitbucket: bitbucketApi,
   linear: linearApi,
   hermesGateway: hermesGatewayApi,
+  privateChat: privateChatApi,
   jira: jiraApi,
   starNag: starNagApi,
   telemetryTrack: telemetryTrackApi,
