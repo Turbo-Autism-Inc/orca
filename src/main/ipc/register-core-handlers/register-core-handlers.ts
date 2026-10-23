@@ -14,6 +14,7 @@ import { registerGitHubHandlers } from '../github'
 import { registerGitLabHandlers } from '../gitlab'
 import { registerHostedReviewHandlers } from '../hosted-review'
 import { registerLinearHandlers } from '../linear/register-handlers'
+import { registerHermesGatewayHandlers } from '../hermes-gateway-ipc'
 import { registerJiraHandlers } from '../jira/register-handlers'
 import { registerJiraIssueSummaryGenerationHandlers } from '../jira/issue-summary-generation'
 import { registerBitbucketHandlers } from '../bitbucket'
@@ -198,6 +199,7 @@ export function registerCoreHandlers(
   registerGitLabHandlers(store)
   registerHostedReviewHandlers(store, stats)
   registerLinearHandlers()
+  registerHermesGatewayHandlers()
   registerJiraHandlers()
   registerJiraIssueSummaryGenerationHandlers(store, commitMessageAgentEnv)
   registerBitbucketHandlers()
