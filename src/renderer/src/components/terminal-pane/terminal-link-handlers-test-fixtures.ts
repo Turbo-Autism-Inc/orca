@@ -42,6 +42,7 @@ export type TerminalLinkStoreState = {
     }[]
   >
   folderWorkspaces: []
+  repos?: { id: string; displayName: string }[]
 }
 
 export type TerminalLinkTestDoubles = {

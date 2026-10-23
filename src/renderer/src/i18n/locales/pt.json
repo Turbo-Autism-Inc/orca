@@ -12191,6 +12191,7 @@
           "759463a221": "Não é possível abrir o diretório: {{value0}}"
         },
         "EditorPanelHeader": {
+          "readOnlyBadge": "Somente leitura",
           "fb8331694e": "Abrir Pré-visualização ao Lado",
           "4157f3cbf3": "Abrir Pré-visualização de Markdown",
           "269ce4842b": "Copiar Caminho Relativo",

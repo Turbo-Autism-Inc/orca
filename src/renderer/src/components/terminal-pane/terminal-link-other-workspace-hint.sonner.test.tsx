@@ -19,7 +19,9 @@ vi.mock('@/store', () => ({ useAppStore: { getState: () => storeState } }))
 
 vi.mock('@/store/selectors', () => ({
   selectKnownWorktreeById: (_state: unknown, worktreeId: string) =>
-    worktreeId === 'wt-b' ? { displayName: 'feature-b', branch: '', path: '/b' } : null
+    worktreeId === 'wt-b'
+      ? { repoId: 'repo-b', displayName: 'feature-b', branch: '', path: '/b' }
+      : null
 }))
 
 vi.mock('@/lib/language-detect', () => ({ detectLanguage: () => 'plaintext' }))
@@ -48,6 +50,7 @@ async function settle(): Promise<void> {
 beforeEach(() => {
   vi.clearAllMocks()
   storeState.openFiles = []
+  storeState.repos = [{ id: 'repo-b', displayName: 'project-b' }]
   // Records each open as the store does, so the hint sees whether the tab is read-only.
   openFileMock.mockImplementation(
     (file: { filePath: string; worktreeId: string; readOnly?: boolean }) => {
@@ -106,7 +109,8 @@ describe('a terminal file link clicked in workspace A', () => {
       }),
       { forceContentReload: true }
     )
-    expect(screen.getByText('This file is in feature-b')).not.toBeNull()
+    // Why the project: worktrees of different projects share names like "main".
+    expect(screen.getByText('This file is in project-b · feature-b')).not.toBeNull()
     expect(screen.getByText('Opened here as read-only')).not.toBeNull()
 
     fireEvent.click(screen.getByRole('button', { name: 'Open there' }))

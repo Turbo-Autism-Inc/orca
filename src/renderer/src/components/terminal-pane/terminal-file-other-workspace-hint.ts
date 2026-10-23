@@ -5,6 +5,7 @@ import { activateAndRevealWorkspace } from '@/lib/worktree-activation'
 import type { RuntimeWorkspaceFileRoute } from '@/lib/runtime-workspace-file-route'
 import { useAppStore } from '@/store'
 import { selectKnownWorktreeById } from '@/store/selectors'
+import { getIndexedRepoMap } from '@/store/worktree-repo-index'
 import { openLinkedFileInEditor } from './terminal-file-link-editor-open'
 import { reserveDetectedFilePathOpenTurn } from './terminal-file-open-turn'
 
@@ -59,6 +60,11 @@ export function showFileInOtherWorkspaceHint(file: FileInOtherWorkspace): void {
   }
   const worktree = selectKnownWorktreeById(state, file.owner.worktreeId, file.owner.executionHostId)
   const workspaceName = worktree ? resolveWorktreeDisplayName(worktree) : ''
+  // Why: worktrees of different projects share names like "main"; the project tells them apart.
+  const repoName =
+    worktree && 'repoId' in worktree
+      ? getIndexedRepoMap(state.repos).get(worktree.repoId)?.displayName
+      : undefined
   hintShown = true
   const hidden = (): void => {
     hintShown = false
@@ -68,7 +74,12 @@ export function showFileInOtherWorkspaceHint(file: FileInOtherWorkspace): void {
       ? translate(
           'auto.components.terminal.pane.TerminalLinkActionPopover.fileInOtherWorkspace',
           'This file is in {{value0}}',
-          { value0: workspaceName }
+          {
+            value0:
+              repoName && repoName !== workspaceName
+                ? `${repoName} · ${workspaceName}`
+                : workspaceName
+          }
         )
       : translate(
           'auto.components.terminal.pane.TerminalLinkActionPopover.fileInAnotherWorkspace',
