@@ -315,3 +315,24 @@ describe('formatBrowserAnnotationsAsMarkdown', () => {
     expect(selectedLine).not.toContain('\ufffd')
   })
 })
+
+describe('formatBrowserAnnotationsAsMarkdown with Design Mode context', () => {
+  it('emits the scoped block in place of the duplicated HTML and CSS lines', () => {
+    const markdown = formatBrowserAnnotationsAsMarkdown([
+      makeAnnotation({
+        design: {
+          worktreeId: 'repo-1::/work/a',
+          profile: 'worktree-isolated',
+          screenshot: { path: '/captures/a.png', width: 296, height: 88 }
+        }
+      })
+    ])
+    expect(markdown).toContain('<orca-design-context version="1"')
+    expect(markdown).toContain('worktree="repo-1::/work/a"')
+    expect(markdown).toContain('browser-tab="page-1"')
+    expect(markdown).toContain('<screenshot path="/captures/a.png"')
+    expect(markdown).not.toContain('**Computed styles:**')
+    expect(markdown).not.toContain('**HTML:**')
+    expect(markdown).toContain('**Feedback:** Make this primary action more obvious.')
+  })
+})

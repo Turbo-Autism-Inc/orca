@@ -169,7 +169,28 @@ export type BrowserPageAnnotation = {
   priority: BrowserAnnotationPriority
   createdAt: string
   payload: BrowserAnnotationPayload
+  /** Set when the annotation came from a known workspace: Design Mode's scope and saved screenshot. */
+  design?: BrowserAnnotationDesignContext
 }
+
+/** Whether the page rendered on its workspace's own isolated profile or a shared one. */
+export type DesignModeProfileIsolation = 'worktree-isolated' | 'shared'
+
+export type BrowserAnnotationDesignContext = {
+  worktreeId: string
+  profile: DesignModeProfileIsolation
+  /** The cropped element PNG saved by main; null when no screenshot was captured or saving failed. */
+  screenshot: { path: string; width: number; height: number } | null
+}
+
+export type BrowserSaveDesignModeCaptureArgs = {
+  worktreeId: string
+  dataUrl: string
+}
+
+export type BrowserSaveDesignModeCaptureResult =
+  | { ok: true; path: string }
+  | { ok: false; reason: string }
 
 // ---------------------------------------------------------------------------
 // Payload budgets — enforced in both guest and main

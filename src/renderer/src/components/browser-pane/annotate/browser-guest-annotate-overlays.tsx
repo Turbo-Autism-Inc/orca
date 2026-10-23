@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom'
 import type { MutableRefObject, RefObject } from 'react'
-import { Copy, Image } from 'lucide-react'
+import { Copy, Image, Palette } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +22,7 @@ import { BrowserPageGrabToast } from './browser-page-grab-toast'
 import { PendingBrowserAnnotationCard } from './pending-browser-annotation-card'
 import type { useBrowserPageAnnotationSend } from './use-browser-page-annotation-send'
 import type { useBrowserPageGrabAnnotations } from './use-browser-page-grab-annotations'
+import { openDesignModeBrowserTab } from '@/lib/design-mode-browser'
 
 /**
  * Everything the annotate and markup tools paint over a guest: the draw surface, the pending
@@ -41,7 +42,8 @@ export function BrowserGuestAnnotateOverlays({
   webviewRef,
   browserOverlayViewport,
   worktreeId,
-  currentUrl
+  currentUrl,
+  designModeIsolated
 }: {
   markup: MarkupModeController
   grab: GrabModeHook
@@ -54,6 +56,8 @@ export function BrowserGuestAnnotateOverlays({
   browserOverlayViewport: BrowserOverlayViewport
   worktreeId: string
   currentUrl?: string
+  /** False offers to reopen the page in the workspace's isolated Design Mode browser. */
+  designModeIsolated?: boolean
 }): React.JSX.Element {
   const {
     pendingAnnotationPayload,
@@ -180,6 +184,18 @@ export function BrowserGuestAnnotateOverlays({
               <Image className="size-3.5" />
               {translate('auto.components.browser.pane.BrowserPane.1ded0d3168', 'Copy Screenshot')}
               <DropdownMenuShortcut>S</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          ) : null}
+          {designModeIsolated === false && currentUrl ? (
+            <DropdownMenuItem
+              onSelect={() => {
+                grabMenuActionTakenRef.current = true
+                grab.cancel()
+                openDesignModeBrowserTab(worktreeId, currentUrl)
+              }}
+            >
+              <Palette className="size-3.5" />
+              {translate('components.designMode.openIsolatedBrowser', 'Open in Design Mode Browser')}
             </DropdownMenuItem>
           ) : null}
           <DropdownMenuSeparator />

@@ -18,6 +18,9 @@ import type {
 } from '../../shared/browser-workspace-types'
 import type { ManagedBrowserProfileOwner } from '../../shared/browser-profile-scope'
 import { ensureManagedBrowserProfile } from '../browser/browser-managed-session-profiles'
+import { saveDesignModeCapture } from '../browser/design-mode-capture-store'
+import { getAppEnvironment } from '../../shared/app-environment'
+import type { BrowserSaveDesignModeCaptureArgs } from '../../shared/browser-grab-types'
 import {
   getBrowserIdentityModeStatus,
   setBrowserIdentityMode
@@ -37,6 +40,7 @@ export function registerBrowserSessionProfileHandlers(): void {
   ipcMain.removeHandler('browser:session:createProfile')
   ipcMain.removeHandler('browser:session:deleteProfile')
   ipcMain.removeHandler('browser:session:ensureManagedProfile')
+  ipcMain.removeHandler('browser:designMode:saveCapture')
   ipcMain.removeHandler('browser:identity:get')
   ipcMain.removeHandler('browser:identity:set')
   ipcMain.removeHandler('browser:session:importCookies')
@@ -70,6 +74,14 @@ export function registerBrowserSessionProfileHandlers(): void {
       isTrustedBrowserRenderer(event.sender)
         ? ensureManagedBrowserProfile(args?.owner, args?.label)
         : null
+  )
+
+  ipcMain.handle(
+    'browser:designMode:saveCapture',
+    (event, args: BrowserSaveDesignModeCaptureArgs) =>
+      isTrustedBrowserRenderer(event.sender)
+        ? saveDesignModeCapture(getAppEnvironment().getPath('userData'), args)
+        : { ok: false, reason: 'not-authorized' }
   )
 
   ipcMain.handle('browser:identity:get', (event) => {

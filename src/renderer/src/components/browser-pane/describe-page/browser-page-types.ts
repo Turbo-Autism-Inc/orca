@@ -59,6 +59,9 @@ export type BrowserPageGrabAnnotationsOptions = {
   webviewRef: MutableRefObject<Electron.WebviewTag | null>
   setBrowserOverlayViewport: Dispatch<SetStateAction<BrowserOverlayViewport>>
   browserAnnotationsLength: number
+  /** The workspace the page belongs to; set, annotations carry Design Mode's scope and screenshot. */
+  worktreeId?: string
+  sessionProfileId?: string | null
 }
 
 export type BrowserPageRecoveryNavigationValidation = {

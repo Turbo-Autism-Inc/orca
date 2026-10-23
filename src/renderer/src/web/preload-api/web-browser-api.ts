@@ -54,6 +54,7 @@ export function createBrowserApi(): NonNullable<Partial<PreloadApi>['browser']> 
           'Selection screenshots are unavailable in the web client.'
         )
       }),
+    saveDesignModeCapture: () => Promise.resolve({ ok: false, reason: 'unavailable-in-web-client' }),
     extractHoverPayload: () =>
       Promise.resolve({
         ok: false,

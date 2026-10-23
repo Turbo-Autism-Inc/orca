@@ -1,3 +1,4 @@
+import { formatDesignModeContextBlock } from '../../../../../shared/design-mode-context-block'
 import type {
   BrowserGrabComputedStyles,
   BrowserGrabPayload,
@@ -230,14 +231,23 @@ export function formatBrowserAnnotationsAsMarkdown(annotations: BrowserPageAnnot
           lines.push(`- ${inlineText(element)}`)
         }
       }
-      if (styleLines.length > 0) {
+      // Design Mode's block carries the HTML and full CSS with its scope, so they are not repeated.
+      if (!annotation.design && styleLines.length > 0) {
         lines.push('**Computed styles:**')
         lines.push(...styleLines)
       }
       if (target.fullPath) {
         lines.push(`**Full DOM path:** ${inlineCode(target.fullPath)}`)
       }
-      if (target.htmlSnippet) {
+      if (annotation.design) {
+        lines.push(
+          formatDesignModeContextBlock({
+            payload,
+            design: annotation.design,
+            browserTabId: annotation.browserPageId
+          })
+        )
+      } else if (target.htmlSnippet) {
         lines.push('**HTML:**')
         lines.push(...fence('html', target.htmlSnippet))
       }

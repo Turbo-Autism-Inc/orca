@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { getManagedBrowserProfileOwner } from './browser-profile-scope'
+import {
+  getDesignModeBrowserProfileOwner,
+  getManagedBrowserProfileOwner
+} from './browser-profile-scope'
 import { FLOATING_TERMINAL_WORKTREE_ID } from './constants'
 
 describe('getManagedBrowserProfileOwner', () => {
@@ -20,5 +23,16 @@ describe('getManagedBrowserProfileOwner', () => {
     expect(getManagedBrowserProfileOwner('repo', FLOATING_TERMINAL_WORKTREE_ID)).toBeNull()
     expect(getManagedBrowserProfileOwner('shared', 'repo-1::/work/a')).toBeNull()
     expect(getManagedBrowserProfileOwner(undefined, 'repo-1::/work/a')).toBeNull()
+  })
+})
+
+describe('getDesignModeBrowserProfileOwner', () => {
+  it('isolates every workspace on its own profile, even under the shared or repo scope', () => {
+    expect(getDesignModeBrowserProfileOwner('repo-1::/work/a')).toEqual({
+      kind: 'worktree',
+      id: 'repo-1::/work/a'
+    })
+    expect(getDesignModeBrowserProfileOwner('folder:f-1')).toEqual({ kind: 'worktree', id: 'folder:f-1' })
+    expect(getDesignModeBrowserProfileOwner(FLOATING_TERMINAL_WORKTREE_ID)).toBeNull()
   })
 })
