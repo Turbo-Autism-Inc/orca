@@ -10,7 +10,13 @@ import {
   type LinearLifecycleSnapshot
 } from './issue-lifecycle-status'
 
-const base = {
+const base: {
+  id: string
+  branch: string
+  linkedLinearIssue: string | null
+  linkedPR: number | null
+  isArchived: boolean
+} = {
   id: 'repo::/w/a',
   branch: 'refs/heads/eng-12-fix',
   linkedLinearIssue: 'ENG-12',
@@ -45,9 +51,9 @@ describe('nextLinearLifecycleEvents', () => {
     expect(events(snap(), snap())).toEqual([])
     expect(events(snap(), snap({ linkedPR: 7 }))).toEqual(['pr-opened'])
     expect(events(snap({ linkedPR: 7 }), snap({ linkedPR: 7 }))).toEqual([])
-    expect(events(snap({ linkedPR: 7 }), snap({ linkedPR: 7, workspaceStatus: 'completed' }))).toEqual(
-      ['done']
-    )
+    expect(
+      events(snap({ linkedPR: 7 }), snap({ linkedPR: 7, workspaceStatus: 'completed' }))
+    ).toEqual(['done'])
     expect(events(snap(), snap({ isArchived: true }))).toEqual(['done'])
   })
 
@@ -70,7 +76,12 @@ describe('lifecycleWorkflowState', () => {
     expect(lifecycleWorkflowState('started', states)?.id).toBe('p')
     expect(lifecycleWorkflowState('pr-opened', states)?.id).toBe('r')
     expect(lifecycleWorkflowState('done', states)?.id).toBe('d')
-    expect(lifecycleWorkflowState('pr-opened', states.filter((s) => s.id !== 'r'))).toBeNull()
+    expect(
+      lifecycleWorkflowState(
+        'pr-opened',
+        states.filter((s) => s.id !== 'r')
+      )
+    ).toBeNull()
   })
 
   it('never moves an issue backwards or out of done', () => {

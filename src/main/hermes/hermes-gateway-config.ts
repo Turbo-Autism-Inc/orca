@@ -24,12 +24,10 @@ export function parseHermesEnv(text: string): Map<string, string> {
     if (separator <= 0) {
       continue
     }
-    let value = line.slice(separator + 1).trim()
-    if (/^(['"]).*\1$/.test(value)) {
-      value = value.slice(1, -1)
-    } else {
-      value = value.replace(/\s+#.*$/, '')
-    }
+    const rawValue = line.slice(separator + 1).trim()
+    const value = /^(['"]).*\1$/.test(rawValue)
+      ? rawValue.slice(1, -1)
+      : rawValue.replace(/\s+#.*$/, '')
     values.set(line.slice(0, separator).trim(), value)
   }
   return values

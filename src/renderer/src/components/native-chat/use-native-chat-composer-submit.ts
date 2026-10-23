@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { takeNativeChatSendAfterAppend } from './native-chat-send-after-append'
 import { translate } from '@/i18n/i18n'
 import {
   applyPickerSuggestion,
@@ -157,5 +158,12 @@ export function useNativeChatComposerSubmit(args: {
 
   const exit = useCallback(() => setEntered(false), [])
   const goalMode = useMemo(() => ({ active, exit, interceptPick }), [active, exit, interceptPick])
+  // A quote's appendTextAndSend: sent on the render whose draft holds the appended text.
+  useEffect(() => {
+    if (takeNativeChatSendAfterAppend(draftScopeKey)) {
+      send()
+    }
+  }, [draft, draftScopeKey, send])
+
   return { send, goalMode }
 }

@@ -12,19 +12,13 @@ import { translate } from '@/i18n/i18n'
 import { useMountedRef } from '@/hooks/useMountedRef'
 import { useAppStore } from '@/store'
 import type {
-  BrowserAnnotationDesignContext,
   BrowserAnnotationIntent,
   BrowserGrabPayload
 } from '../../../../../shared/browser-grab-types'
 import { formatGrabPayloadAsText } from './GrabConfirmationSheet'
-import {
-  createBrowserAnnotationId,
-  createBrowserAnnotationPayload,
-  DEFAULT_BROWSER_ANNOTATION_PRIORITY
-} from '../describe-page/browser-annotation-geometry'
 import { useBrowserPageAnnotationViewportTracking } from './use-browser-page-annotation-viewport-tracking'
 import { runBrowserGrabActionShortcut } from './browser-page-grab-action'
-import { captureDesignModeContext } from '@/lib/design-mode-browser'
+import { newBrowserPageAnnotation, withDesignModeContext } from '@/lib/design-mode-browser'
 import type {
   BrowserPageGrabAnnotationsOptions,
   BrowserPageGrabToastState,
@@ -263,28 +257,22 @@ export function useBrowserPageGrabAnnotations({
       }
       pendingAnnotationPayloadRef.current = null
       setPendingAnnotationPayload(null)
-      const commit = (design: BrowserAnnotationDesignContext | undefined): void => {
-        addBrowserPageAnnotation({
-          id: createBrowserAnnotationId(),
-          browserPageId: browserTabId,
-          comment,
-          intent,
-          priority: DEFAULT_BROWSER_ANNOTATION_PRIORITY,
-          createdAt: new Date().toISOString(),
-          payload: createBrowserAnnotationPayload(payload),
-          ...(design ? { design } : {})
-        })
+      withDesignModeContext({ payload, worktreeId, sessionProfileId }, (design) => {
+        addBrowserPageAnnotation(
+          newBrowserPageAnnotation({
+            browserPageId: browserTabId,
+            comment,
+            intent,
+            payload,
+            design
+          })
+        )
         recordFeatureInteraction('browser-annotations')
         if (mountedRef.current) {
           showGrabToast(annotationAddedGrabToastMessage(), 'success', payload)
           grab.rearm()
         }
-      }
-      if (!worktreeId) {
-        commit(undefined)
-        return
-      }
-      void captureDesignModeContext({ payload, worktreeId, sessionProfileId }).then(commit)
+      })
     },
     [
       addBrowserPageAnnotation,

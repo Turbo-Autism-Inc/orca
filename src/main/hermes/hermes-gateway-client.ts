@@ -43,7 +43,11 @@ export class HermesGatewayClient {
   }
 
   async send(conversationId: string, text: string): Promise<HermesGatewaySendResult> {
-    if (typeof conversationId !== 'string' || conversationId.length === 0 || conversationId.length > 200) {
+    if (
+      typeof conversationId !== 'string' ||
+      conversationId.length === 0 ||
+      conversationId.length > 200
+    ) {
       return { ok: false, error: 'invalid-conversation' }
     }
     if (typeof text !== 'string' || text.trim() === '' || text.length > MAX_MESSAGE_LENGTH) {

@@ -48,7 +48,11 @@ export function useLinearIssueLifecycleStatusSync(): void {
           }
           void postLinearIssueLifecycleStatus(settings, transition).then((result) => {
             if (result.kind === 'failed') {
-              console.warn('Linear lifecycle status was not posted', transition.event, result.detail)
+              console.warn(
+                'Linear lifecycle status was not posted',
+                transition.event,
+                result.detail
+              )
             }
           })
         }

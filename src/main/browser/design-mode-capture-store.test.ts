@@ -30,7 +30,9 @@ describe('saveDesignModeCapture', () => {
     expect(dirname(a.path)).toBe(designModeCaptureDirectory(root, 'repo::/a'))
     expect(dirname(a.path)).not.toBe(dirname(b.path))
     // A workspace id with separators stays inside the captures root.
-    expect(designModeCaptureDirectory(root, '../../etc')).toContain(join(root, 'design-mode-captures'))
+    expect(designModeCaptureDirectory(root, '../../etc')).toContain(
+      join(root, 'design-mode-captures')
+    )
   })
 
   it('refuses what is not a PNG', async () => {

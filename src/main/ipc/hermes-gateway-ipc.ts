@@ -18,12 +18,10 @@ export function registerHermesGatewayHandlers(): void {
   ipcMain.handle('hermesGateway:status', (event) =>
     isTrustedUIRenderer(event.sender) ? gateway().status() : { state: 'refused' }
   )
-  ipcMain.handle(
-    'hermesGateway:send',
-    (event, args: { conversationId: string; text: string }) =>
-      isTrustedUIRenderer(event.sender)
-        ? gateway().send(args?.conversationId, args?.text)
-        : { ok: false, error: 'not-authorized' }
+  ipcMain.handle('hermesGateway:send', (event, args: { conversationId: string; text: string }) =>
+    isTrustedUIRenderer(event.sender)
+      ? gateway().send(args?.conversationId, args?.text)
+      : { ok: false, error: 'not-authorized' }
   )
   ipcMain.handle('hermesGateway:reset', (event, args: { conversationId: string }) => {
     if (isTrustedUIRenderer(event.sender) && typeof args?.conversationId === 'string') {

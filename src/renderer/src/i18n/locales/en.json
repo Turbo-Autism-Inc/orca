@@ -19592,7 +19592,13 @@
       "imagePreview": {
         "fileActions": "File actions",
         "linkActions": "Link actions"
-      }
+      },
+      "quoteWithNote": "Quote with note",
+      "quoteNoteLabel": "Note on the quote",
+      "quoteNotePlaceholder": "Add a note for the agent…",
+      "sendQuoteWithNote": "Send",
+      "privateChat": "Private chat",
+      "privateChatHint": "New chats keep their messages in memory only: nothing is saved to disk, drafts are not kept, and nothing is sent to telemetry."
     },
     "tab": {
       "bar": {
@@ -20082,6 +20088,16 @@
       "stepDownload": "Download",
       "stepUnpack": "Unpack",
       "stepCheck": "Check"
+    },
+    "designMode": {
+      "openIsolatedBrowser": "Open in Design Mode Browser"
+    },
+    "hermesAnywhere": {
+      "title": "Hermes",
+      "ready": "Connected to the local Hermes gateway at {{url}}.",
+      "notReady": "Start the Hermes API server (API_SERVER_ENABLED and API_SERVER_KEY in ~/.hermes/.env) to chat here.",
+      "messageLabel": "Message Hermes",
+      "send": "Send"
     }
   },
   "dashboardPopout": {

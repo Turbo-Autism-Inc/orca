@@ -80,7 +80,12 @@ export function postLinearIssueLifecycleStatus(
       )
       let movedTo: string | null = null
       if (target && isForwardLifecycleMove(issue.state, target)) {
-        const moved = await deps.updateIssue(settings, issue.id, { stateId: target.id }, workspaceId)
+        const moved = await deps.updateIssue(
+          settings,
+          issue.id,
+          { stateId: target.id },
+          workspaceId
+        )
         if (moved.ok === false) {
           return { kind: 'failed', detail: moved.error }
         }

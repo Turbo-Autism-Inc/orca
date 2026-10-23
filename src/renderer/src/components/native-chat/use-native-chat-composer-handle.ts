@@ -8,6 +8,7 @@ import {
 import { useNativeChatTypedInsertion } from './use-native-chat-typed-insertion'
 import { useNativeChatPastedTextFile } from './use-native-chat-pasted-text-file'
 import type { NativeChatComposerInput } from './native-chat-composer-input'
+import { requestNativeChatSendAfterAppend } from './native-chat-send-after-append'
 
 type UseNativeChatComposerHandleArgs = Parameters<typeof useNativeChatTypedInsertion>[0] &
   Omit<UseNativeChatComposerPasteArgs, 'insertTypedText'> & {
@@ -15,8 +16,6 @@ type UseNativeChatComposerHandleArgs = Parameters<typeof useNativeChatTypedInser
     pastesInline: () => boolean
     /** A structured chat's editor while it shows this scope, where a long paste saved as a file lands. */
     pastedTextEditor: (() => NativeChatComposerInput | null) | null
-    /** Submits on the render that shows the appended draft. */
-    requestSendAfterAppend: () => void
   }
 
 /** Typed and pasted insertion for the composer, exposed on the handle the chat
@@ -25,14 +24,8 @@ export function useNativeChatComposerHandle(
   ref: ForwardedRef<NativeChatComposerHandle>,
   args: UseNativeChatComposerHandleArgs
 ): (event: ClipboardEventLike) => void {
-  const {
-    textareaRef,
-    isComposing,
-    setDraft,
-    setActiveSuggestion,
-    requestSendAfterAppend,
-    ...pasteArgs
-  } = args
+  const { textareaRef, isComposing, setDraft, setActiveSuggestion, ...pasteArgs } = args
+  const scopeKey = args.attachmentScopeKey
   const { insertTypedText, appendText, acceptsText, insertPastedText, focus, contains } =
     useNativeChatTypedInsertion({
       textareaRef,
@@ -68,14 +61,16 @@ export function useNativeChatComposerHandle(
           return
         }
         appendText(text)
-        requestSendAfterAppend()
+        if (scopeKey) {
+          requestNativeChatSendAfterAppend(scopeKey)
+        }
       },
       handlePasteEvent,
       pasteFromClipboard,
       contains
     }),
     [
-      requestSendAfterAppend,
+      scopeKey,
       focus,
       insertTypedText,
       acceptsText,

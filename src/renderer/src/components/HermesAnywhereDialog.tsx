@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ImeTextarea } from '@/lib/ime-text-field'
 import { translate } from '@/i18n/i18n'
+import { createBrowserUuid } from '@/lib/browser-uuid'
 import type { HermesGatewayStatus } from '../../../shared/hermes-gateway-types'
 
 export const OPEN_HERMES_ANYWHERE_EVENT = 'orca:open-hermes-anywhere'
@@ -25,7 +32,7 @@ export function HermesAnywhereDialog(): React.JSX.Element {
   const [turns, setTurns] = useState<Turn[]>([])
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
-  const conversationId = useRef(`hermes-anywhere-${crypto.randomUUID()}`)
+  const conversationId = useRef(`hermes-anywhere-${createBrowserUuid()}`)
 
   useEffect(() => {
     const isMac = navigator.userAgent.includes('Mac')
@@ -93,7 +100,10 @@ export function HermesAnywhereDialog(): React.JSX.Element {
                 )}
           </DialogDescription>
         </DialogHeader>
-        <div className="flex max-h-80 min-h-24 flex-col gap-2 overflow-y-auto text-sm" aria-live="polite">
+        <div
+          className="scrollbar-sleek flex max-h-80 min-h-24 flex-col gap-2 overflow-y-auto text-sm"
+          aria-live="polite"
+        >
           {turns.map((turn, index) => (
             <p
               key={index}

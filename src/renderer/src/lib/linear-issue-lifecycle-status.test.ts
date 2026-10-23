@@ -34,7 +34,7 @@ function deps(current: LinearIssue, bodies: string[] = []) {
     teamStates: vi.fn(async () => states),
     updateIssue: vi.fn(async () => ({ ok: true as const })),
     comments: vi.fn(async () => bodies.map((body, i) => ({ id: `c${i}`, body, createdAt: '' }))),
-    addComment: vi.fn(async () => ({ ok: true as const, id: 'new' }))
+    addComment: vi.fn(async (..._args: unknown[]) => ({ ok: true as const, id: 'new' }))
   }
 }
 
@@ -70,7 +70,11 @@ describe('postLinearIssueLifecycleStatus', () => {
   it('posts nothing a second time', async () => {
     const d = deps(issue('In Review', 'started'), ['Orca: PR opened (#9) · branch eng-1'])
     await expect(
-      postLinearIssueLifecycleStatus({ kind: 'local' }, { event: 'pr-opened', snapshot }, { deps: d })
+      postLinearIssueLifecycleStatus(
+        { kind: 'local' },
+        { event: 'pr-opened', snapshot },
+        { deps: d }
+      )
     ).resolves.toEqual({ kind: 'already-posted' })
     expect(d.updateIssue).not.toHaveBeenCalled()
     expect(d.addComment).not.toHaveBeenCalled()

@@ -21,7 +21,12 @@ function payload(htmlSnippet = '<button class="cta">Buy</button>'): BrowserGrabP
       textSnippet: 'Buy',
       htmlSnippet,
       attributes: {},
-      accessibility: { role: 'button', accessibleName: 'Buy', ariaLabel: null, ariaLabelledBy: null },
+      accessibility: {
+        role: 'button',
+        accessibleName: 'Buy',
+        ariaLabel: null,
+        ariaLabelledBy: null
+      },
       rectViewport: { x: 10.2, y: 20.7, width: 120, height: 40 },
       rectPage: { x: 10, y: 261, width: 120, height: 40 },
       computedStyles: {

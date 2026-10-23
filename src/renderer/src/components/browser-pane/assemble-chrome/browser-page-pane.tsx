@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { designModeProfileIsolation } from '@/lib/design-mode-browser'
+import { useDesignModeIsolated } from '@/lib/design-mode-browser'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getConnectionIdFromState } from '@/lib/connection-context'
@@ -144,11 +144,7 @@ export function BrowserPagePane({
   const certificateFailure = useAppStore(
     (s) => s.browserCertificateFailuresByPageId[browserTab.id] ?? null
   )
-  const designModeIsolated = useAppStore(
-    (s) =>
-      designModeProfileIsolation(s.browserSessionProfiles, worktreeId, sessionProfileId) ===
-      'worktree-isolated'
-  )
+  const designModeIsolated = useDesignModeIsolated(worktreeId, sessionProfileId)
   const webviewPartition = useBrowserPageWebviewPartition({
     sessionProfileId,
     sessionPartition

@@ -141,6 +141,7 @@ const BROWSER_PAGE_CHANNELS = [
   'browser:session:createProfile',
   'browser:session:deleteProfile',
   'browser:session:ensureManagedProfile',
+  'browser:designMode:saveCapture',
   'browser:session:importCookies',
   'browser:session:resolvePartition',
   'browser:session:clearDefaultCookies',

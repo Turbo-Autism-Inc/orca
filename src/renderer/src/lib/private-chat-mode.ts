@@ -23,7 +23,7 @@ export async function setPrivateChatMode(next: boolean): Promise<boolean> {
     publish(true)
   }
   try {
-    publish((await window.api.privateChat?.set(next)) === true)
+    publish((await window.api?.privateChat?.set(next)) === true)
   } catch {
     publish(false)
   }
@@ -31,18 +31,15 @@ export async function setPrivateChatMode(next: boolean): Promise<boolean> {
 }
 
 export function syncPrivateChatModeFromMain(): void {
-  void window.api.privateChat
+  void window.api?.privateChat
     ?.get()
     .then((value) => publish(value === true))
     .catch(() => publish(false))
 }
 
 export function usePrivateChatMode(): boolean {
-  return useSyncExternalStore(
-    (listener) => {
-      listeners.add(listener)
-      return () => listeners.delete(listener)
-    },
-    isPrivateChatModeOn
-  )
+  return useSyncExternalStore((listener) => {
+    listeners.add(listener)
+    return () => listeners.delete(listener)
+  }, isPrivateChatModeOn)
 }

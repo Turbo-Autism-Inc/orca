@@ -26,7 +26,9 @@ describe('HermesGatewayClient', () => {
     ])
     client.reset('pane-a')
     await client.send('pane-a', 'fresh')
-    expect(JSON.parse(String((fetch.mock.calls[2] as unknown as [string, RequestInit])[1].body)).messages).toHaveLength(1)
+    expect(
+      JSON.parse(String((fetch.mock.calls[2] as unknown as [string, RequestInit])[1].body)).messages
+    ).toHaveLength(1)
   })
 
   it('reports what went wrong without the key', async () => {
@@ -34,7 +36,10 @@ describe('HermesGatewayClient', () => {
       readConfig: async () => config,
       fetch: vi.fn(async () => new Response('', { status: 401 }))
     })
-    await expect(unauthorized.send('p', 'hi')).resolves.toEqual({ ok: false, error: 'unauthorized' })
+    await expect(unauthorized.send('p', 'hi')).resolves.toEqual({
+      ok: false,
+      error: 'unauthorized'
+    })
 
     const off = new HermesGatewayClient({
       readConfig: async () => ({ ...config, enabled: false }),

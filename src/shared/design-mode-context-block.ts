@@ -47,7 +47,7 @@ function attributes(entries: readonly [string, string | number][]): string {
 
 // Why: page HTML is untrusted; a literal closing tag inside it must not end the block for the agent.
 function neutralizeBlockTags(content: string): string {
-  return content.replace(new RegExp(`<(/?)${BLOCK_TAG}`, 'gi'), '<$1\u200b' + BLOCK_TAG)
+  return content.replace(new RegExp(`<(/?)${BLOCK_TAG}`, 'gi'), `<$1\u200b${BLOCK_TAG}`)
 }
 
 function fence(language: string, content: string): string[] {

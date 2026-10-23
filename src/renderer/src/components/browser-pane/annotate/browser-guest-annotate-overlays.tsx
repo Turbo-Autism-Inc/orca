@@ -195,7 +195,10 @@ export function BrowserGuestAnnotateOverlays({
               }}
             >
               <Palette className="size-3.5" />
-              {translate('components.designMode.openIsolatedBrowser', 'Open in Design Mode Browser')}
+              {translate(
+                'components.designMode.openIsolatedBrowser',
+                'Open in Design Mode Browser'
+              )}
             </DropdownMenuItem>
           ) : null}
           <DropdownMenuSeparator />

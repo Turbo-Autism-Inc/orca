@@ -23,9 +23,9 @@ describe('hermes gateway config', () => {
       enabled: false,
       apiKey: null
     })
-    expect(hermesGatewayConfigFromEnv(new Map([['API_SERVER_HOST', 'hermes.example.com']]))).toEqual(
-      { error: 'non-loopback-host' }
-    )
+    expect(
+      hermesGatewayConfigFromEnv(new Map([['API_SERVER_HOST', 'hermes.example.com']]))
+    ).toEqual({ error: 'non-loopback-host' })
     expect(loopbackGatewayUrl('::1', 8642)).toBe('http://[::1]:8642')
     expect(loopbackGatewayUrl('127.0.0.1', 70000)).toBeNull()
   })

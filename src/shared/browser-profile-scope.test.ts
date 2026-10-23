@@ -32,7 +32,10 @@ describe('getDesignModeBrowserProfileOwner', () => {
       kind: 'worktree',
       id: 'repo-1::/work/a'
     })
-    expect(getDesignModeBrowserProfileOwner('folder:f-1')).toEqual({ kind: 'worktree', id: 'folder:f-1' })
+    expect(getDesignModeBrowserProfileOwner('folder:f-1')).toEqual({
+      kind: 'worktree',
+      id: 'folder:f-1'
+    })
     expect(getDesignModeBrowserProfileOwner(FLOATING_TERMINAL_WORKTREE_ID)).toBeNull()
   })
 })
