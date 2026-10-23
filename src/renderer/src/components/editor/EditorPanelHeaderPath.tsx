@@ -121,7 +121,7 @@ export function EditorPanelHeaderPath({
           </button>
         )}
         {!isRenaming && activeFile.readOnly === true && (
-          <Badge variant="outline" className="text-3xs text-muted-foreground">
+          <Badge variant="outline">
             {translate('auto.components.editor.EditorPanelHeader.readOnlyBadge', 'Read-only')}
           </Badge>
         )}
