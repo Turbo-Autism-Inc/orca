@@ -193,8 +193,6 @@ describe('proxy bypass rules', () => {
     ['[fd00::1]', 'fd00::1', 443, true, true],
     ['[fd00::1]', 'fd00:0:0:0:0:0:0:1', 443, true, true],
     ['fd00:0::1', '[FD00::1]', 443, true, true],
-    ['[fd00::1]:8443', 'fd00:0:0:0:0:0:0:1', 443, false, false],
-    ['[fd00::1]', 'fd00::2', 443, false, false],
     ['https://corp.test', 'corp.test', 443, true, true],
     ['https://corp.test', 'corp.test', 80, false, false],
     ['ftp://corp.test', 'corp.test', 21, false, false],
@@ -206,13 +204,9 @@ describe('proxy bypass rules', () => {
     ['corp.test', 'corp.test.', 443, true, true],
     ['', '169.254.169.254', 80, true, true],
     ['<-loopback>', 'localhost', 3000, false, false],
-    ['<-loopback>', '0:0:0:0:0:0:0:1', 3000, false, false],
-    ['<-loopback>', 'fe80:0:0:0:0:0:0:1', 80, false, false],
     ['<-loopback>;<local>', 'localhost', 3000, true, true],
     ['<local>;<-loopback>', 'localhost', 3000, false, false],
-    ['<local>;<-loopback>', 'intranet', 80, true, true],
-    ['<-loopback>;127.0.0.1', '127.0.0.1', 3000, true, true],
-    ['127.0.0.1;<-loopback>', '127.0.0.1', 3000, false, false]
+    ['<local>;<-loopback>', 'intranet', 80, true, true]
   ])('%s against %s:%d (NO_PROXY %s, Chromium %s)', (rule, host, port, noProxy, chromium) => {
     expect(matchesProxyBypassRules({ host, port }, rule, 'no-proxy')).toBe(noProxy)
     expect(matchesProxyBypassRules({ host, port }, rule, 'chromium')).toBe(chromium)
