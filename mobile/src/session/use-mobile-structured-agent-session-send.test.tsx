@@ -330,7 +330,7 @@ describe('mobile structured send actions', () => {
         }
       }
     ]
-    reply.page.liveCursor.sequence = 3
+    reply.page.liveCursor = { epoch: 'epoch-1', sequence: 3 }
     act(() => listener?.(reply))
     expect(hook!.session.messages.map((message) => message.id)).toEqual([
       messages[0]?.id,
